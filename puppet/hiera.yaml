@@ -1,0 +1,17 @@
+---
+:backends:
+    - yaml
+    - puppet
+#
+:yaml:
+    :datadir: /etc/puppet/siteConfig
+#
+:hierarchy:
+    - site
+#
+:puppet:
+    :datadir: /etc/puppet/siteConfig
+
+# Hash Merge: Need rubygem-deep-merge from
+# puppetlabs repo and hiera ≥ 1.2.0
+:merge_behavior: deeper

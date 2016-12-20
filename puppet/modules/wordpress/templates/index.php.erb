@@ -1,0 +1,32 @@
+<?php
+/**
+ • Stop WP to expose the user_name when accessed with like
+ • www.abc.com/?author=1 and redirect to the HomePage
+**/
+$findAuthor = isset($_SERVER["QUERY_STRING"]) ? stripos($_SERVER["QUERY_STRING"], 'author=') : stripos($_SERVER["REQUEST_URI"], 'author=');
+if ( isset($_REQUEST["author"]) || isset($_GET["author"]) || ($findAuthor !== false) )
+{
+    $website = isset($_SERVER["HTTP_HOST"]) ? $_SERVER["HTTP_HOST"] : $_SERVER["SERVER_NAME"];
+    $redirect_url = 'https://' . $website . '/';
+    header("HTTP/1.1 301 Moved Permanently");
+    header("Location: $redirect_url");
+    exit('Unauthorised access');
+}
+
+/**
+ * Front to the WordPress application. This file doesn't do anything, but loads
+ * wp-blog-header.php which does and tells WordPress to load the theme.
+ *
+ * @package WordPress
+ */
+
+/**
+ * Tells WordPress to load the WordPress theme and output it.
+ *
+ * @var bool
+ */
+define('WP_USE_THEMES', true);
+
+/** Loads the WordPress Environment and Template */
+require( dirname( __FILE__ ) . '/wp-blog-header.php' );
+?>

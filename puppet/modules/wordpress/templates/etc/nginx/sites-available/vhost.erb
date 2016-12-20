@@ -1,0 +1,36 @@
+server {
+	listen <%= @port %>;
+	listen [::]:<%= @port %>;
+
+	root /var/www/<%= @title %>;
+	index index.php;
+
+	server_name <%= @wp_site_name %>;
+
+        access_log /var/log/nginx/<%= @title %>/access.log;
+        error_log /var/log/nginx/<%= @title %>/error.log;
+
+	location / {
+	 	try_files $uri $uri/ /index.php?$args;
+	}
+    location = /xmlrpc.php { deny all; }
+    location /readme.html { deny all; }
+    
+	location ~ [^/]\.php(/|$)$ {
+		fastcgi_split_path_info ^(.+\.php)(/.+)$;
+
+		fastcgi_pass unix:/var/run/php5-fpm.sock;
+		fastcgi_index index.php;
+		include fastcgi_params;
+
+		if (!-f $document_root$fastcgi_script_name) {
+                	return 404;
+		}
+	}
+
+	rewrite /wp-admin$ $scheme://$host$uri/ permanent;
+
+	location ~* ^.+\.(ogg|ogv|svg|svgz|eot|otf|woff|mp4|ttf|rss|atom|jpg|jpeg|gif|png|ico|zip|tgz|gz|rar|bz2|doc|xls|exe|ppt|tar|mid|midi|wav|bmp|rtf)$ {
+		access_log off; log_not_found off; expires max;
+	}
+}

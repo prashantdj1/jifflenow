@@ -1,0 +1,168 @@
+# WordPress Module
+
+## Overview
+
+This will set up an installation of Wordpress 3.8 on Debian and Redhat style distributions.
+
+## Capabilities
+
+Installation includes:
+
+- Configuration of WordPress DB connection parameters
+- Generate secure keys and salts for `wp-config.php`.
+- Optional creation of MySQL database/user/permissions.
+
+Requires:
+
+- Configuration of php-enabled webserver
+- Configuration MySQL server
+- PHP 5.3 or greater
+
+## Parameters
+
+* `install_dir`<br />
+  Specifies the directory into which wordpress should be installed. Default: `/opt/wordpress`
+
+* `install_url`<br />
+  Specifies the url from which the wordpress tarball should be downloaded.  Default: `http://wordpress.org`
+
+* `version`<br />
+  Specifies the version of wordpress to install. Default: `3.8`
+
+* `create_db`<br />
+  Specifies whether to create the db or not. Default: `true`
+
+* `create_db_user`<br />
+  Specifies whether to create the db user or not. Default: `true`
+
+* `db_name`<br />
+  Specifies the database name which the wordpress module should be configured to use. Default: `wordpress`
+
+* `db_host`<br />
+  Specifies the database host to connect to. Default: `localhost`
+
+* `db_user`<br />
+  Specifies the database user. Default: `wordpress`
+
+* `db_password`<br />
+  Specifies the database user's password in plaintext. Default: `password`
+
+* `wp_owner`<br />
+  Specifies the owner of the wordpress files. Default: `root`
+
+* `wp_group`<br />
+  Specifies the group of the wordpress files. Default: `0` (\*BSD/Darwin compatible GID)
+
+* `wp_lang`<br />
+  WordPress Localized Language. Default: ''
+
+* `wp_plugin_dir`<br />
+  WordPress Plugin Directory. Full path, no trailing slash. Default: WordPress Default
+
+* `wp_additional_config`<br />
+  Specifies a template to include near the end of the wp-config.php file to add additional options. Default: ''
+
+* `wp_table_prefix`<br />
+  Specifies the database table prefix. Default: wp_
+
+* `wp_proxy_host`<br />
+  Specifies a Hostname or IP of a proxy server for Wordpress to use to install updates, plugins, etc. Default: ''
+
+* `wp_proxy_port`<br />
+  Specifies the port to use with the proxy host.  Default: ''
+
+* `wp_multisite`<br />
+  Specifies whether to enable the multisite feature. Requires `wp_site_domain` to also be passed. Default: `false`
+
+* `wp_site_domain`<br />
+  Specifies the `DOMAIN_CURRENT_SITE` value that will be used when configuring multisite. Typically this is the address of the main wordpress instance.  Default: ''
+
+## Example Usage
+
+Default deployment (insecure; default passwords and installed as root):
+
+```puppet
+wordpress { 'wordpress': }
+```
+
+Basic deployment (secure database password, installed as `wordpress` user/group):
+
+```puppet
+wordpress { 'wordpress':
+  wp_owner    => 'wordpress',
+  wp_group    => 'wordpress',
+  db_user     => 'wordpress',
+  db_password => 'hvyH(S%t(\"0\"16',
+}
+```
+
+Externally hosted MySQL DB:
+
+```puppet
+wordpress { 'wordpress':
+  db_user     => 'wordpress',
+  db_password => 'hvyH(S%t(\"0\"16',
+  db_host     => 'db.example.com',
+}
+```
+
+Disable module's database/user creation (the database and db user must still exist with correct permissions):
+
+```puppet
+wordpress { 'wordpress':
+  db_user        => 'wordpress',
+  db_password    => 'hvyH(S%t(\"0\"16',
+  create_db      => false,
+  create_db_user => false,
+}
+```
+
+Install specific version of WordPress:
+
+```puppet
+wordpress { 'wordpress':
+  version => '3.4',
+}
+```
+
+Install WordPress to a specific directory:
+
+```puppet
+wordpress { 'wordpress':
+  install_dir => '/var/www/wordpress',
+}
+```
+
+Download `wordpress-${version}.tar.gz` from an internal server:
+
+```puppet
+wordpress { 'wordpress':
+  install_url => 'http://internal.example.com/software',
+}
+```
+
+Configure wordpress to download updates and plugins through a proxy:
+
+```puppet
+wordpress { 'wordpress':
+  proxy_host => 'http://my.proxy.corp.com',
+  proxy_port => '8080',
+}
+```
+
+Enable the multisite wordpress feature:
+
+```puppet
+wordpress { 'wordpress':
+  wp_multisite   => true,
+  wp_site_domain => 'blog.domain.com',
+}
+```
+
+Add custom configuration to wp-config.php:
+
+```puppet
+wordpress { 'wordpress':
+  wp_additional_config => 'foo/wp-config-extra.php.erb',
+}
+```

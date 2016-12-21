@@ -7,7 +7,7 @@ wordpress::params::db_host: 'localhost'
 wordpress::params::mysql_db_password: '9xzcxVQEB'
 wordpress::params::wp_owner: 'www-data'
 wordpress::params::wp_group: 'www-data'
-wordpress::client_hash:
+wordpress::site_hash:
     'site_1':
         db_password: 'hrAF6n7J0JYqU'
         wp_lang: ''

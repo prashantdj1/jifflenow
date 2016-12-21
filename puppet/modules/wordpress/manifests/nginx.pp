@@ -97,7 +97,7 @@ class wordpress::nginx {
             group   => 'root',
             source  => "puppet:///modules/wordpress/etc/nginx/ssl/test.key";
 
-        "/etc/nginx/sites-available/load-balancer.conf":
+        [ "/etc/nginx/sites-available/load-balancer.conf", "/etc/nginx/sites-enabled/load-balancer.conf" ]:
             ensure  => present,
             mode    => '0644',
             content => template('wordpress/etc/nginx/sites-available/load-balancer.conf'),

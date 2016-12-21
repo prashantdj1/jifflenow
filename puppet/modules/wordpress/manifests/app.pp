@@ -30,8 +30,8 @@ define wordpress::app (
 
     ## Resource defaults
     File {
-        owner  => 'root',
-        group  => 'root',
+        owner  => $wp_owner,
+        group  => $wp_group,
         mode   => '0644',
     }
 
@@ -49,15 +49,15 @@ define wordpress::app (
         ensure  => directory,
         mode    => '0755',
     } ->
-    exec { "Download_wordpress_${title}":
-      command => "wget ${install_url}/wordpress-${version}.tar.gz",
-      creates => "${wp_root}/wordpress-${version}.tar.gz",
-      require => File[$install_dir],
-      user    => $wp_owner,
-      group   => $wp_group,
+    wget::fetch { "Fetch_wordpress_${title}":
+        source      => "${install_url}/wordpress-${version}.tar.gz",
+        destination => "/tmp/wordpress-${version}.tar.gz",
+        timeout     => 5,
+        verbose     => true,
+        require     => File[$wp_root]
     } ->
     exec { "Extract_wordpress_${title}":
-      command => "cd $wp_root && tar zxvf ${wp_root}/wordpress-${version}.tar.gz ",
+      command => "tar -xzvf /tmp/wordpress-${version}.tar.gz --strip 1 -C ${wp_root}",
       creates => "${install_dir}/index.php",
       user    => $wp_owner,
       group   => $wp_group,

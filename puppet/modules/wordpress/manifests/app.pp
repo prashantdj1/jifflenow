@@ -1,7 +1,7 @@
-## ==
 
 define wordpress::app (
     $install_dir            =   $wordpress::params::install_dir,
+    $install_url            =   $wordpress::params::install_url,
     $version                =   $wordpress::params::version,
     $db_host                =   $wordpress::params::db_host,
     $mysql_db_password      =   $wordpress::params::mysql_db_password,
@@ -20,9 +20,10 @@ define wordpress::app (
     $wp_admin               =   undef,
     $wp_admin_email         =   undef,
     $wp_admin_password      =   undef,
+    $port	            =   undef,
     ){
 
-    ## The basic data-type validation 
+    ###The basic data-type validation 
     validate_string($install_dir,$install_url,$version,$db_name,$db_host,$db_user,$db_password)
     validate_string($wp_owner,$wp_group, $wp_lang, $wp_plugin_dir,$wp_additional_config,$wp_table_prefix,$wp_proxy_host,$wp_proxy_port,$wp_site_domain)
     validate_absolute_path($install_dir)
@@ -49,9 +50,19 @@ define wordpress::app (
         ensure  => directory,
         mode    => '0755',
     } ->
-    wpcli::core::download { "download_wordpress_${title}":
-        wp_version    => $version,
-        location      => $wp_root,
+    exec { "Download_wordpress_${title}":
+    command => "wget ${install_url}/wordpress-${version}.tar.gz",
+    creates => "${wp_root}/wordpress-${version}.tar.gz",
+    require => File[$install_dir],
+    user    => $wp_owner,
+    group   => $wp_group,
+  }
+  -> exec { "Extract_wordpress_${title}":
+    command => "cd $wp_root && tar zxvf ${wp_root}/wordpress-${version}.tar.gz ",
+    creates => "${install_dir}/index.php",
+    user    => $wp_owner,
+    group   => $wp_group,
+  }
     } ->
     file { $wp_web_dir:
         ensure => directory,
@@ -72,15 +83,12 @@ define wordpress::app (
         ensure  => present,
         content => template('wordpress/wp-keysalts.php.erb'),
         replace => false,
-        require => Wpcli::Core::Download["download_wordpress_${title}"],
-        #require => Exec["Extract_wordpress_${title}"],
+        require => Exec["Extract_wordpress_${title}"],
     }
 
     concat { "${install_dir}/${title}/wp-config.php":
         mode    => '0400',
-        require => Wpcli::Core::Download["download_wordpress_${title}"],
-        notify  => Class['::fooacl'],
-        #require => Exec["Extract_wordpress_${title}"],
+        require => Exec["Extract_wordpress_${title}"],
     }
 
     concat::fragment { "${install_dir}/${title}/wp-config.php keysalts":
@@ -101,25 +109,7 @@ define wordpress::app (
     file { "${install_dir}/${title}/index.php":
         ensure  => present,
         content => template('wordpress/index.php.erb'),
-        require => Wpcli::Core::Download["download_wordpress_${title}"],
-        #require => Exec["Extract_wordpress_${title}"],
+        require => Exec["Extract_wordpress_${title}"],
     }
 
-    fooacl::conf { "allow_${wp_owner}_wp_config_${title}":
-        target      => "${wp_root}/wp-config.php",
-        permissions => [ "user:${wp_owner}:r" ],
-        require     => Concat[ "${install_dir}/${title}/wp-config.php" ],
-    }
-
-    ## WP-CLI core install
-    wpcli::core::install { "install_wordpress_${title}":
-        url             => "https://${wp_site_domain}",
-        sitename        => $wp_site_title,
-        admin_user      => $wp_admin,
-        admin_password  => $wp_admin_password,
-        admin_email     => $wp_admin_email,
-        location        => $wp_root,
-        network         => $wp_multisite,
-        require         => Concat[ "${install_dir}/${title}/wp-config.php" ],
-    }
 }

@@ -1,5 +1,6 @@
  class wordpress::params (
     $install_dir          = undef,
+    $install_url	  = undef,
     $version              = undef,
     $db_host              = undef,
     $mysql_db_password    = undef,

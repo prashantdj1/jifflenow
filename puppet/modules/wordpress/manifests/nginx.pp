@@ -45,14 +45,6 @@ class wordpress::nginx {
             owner   => 'root',
             group   => 'root';
 
-        '/etc/nginx/conf.d/fastcgi_cache.conf':
-            ensure  => present,
-            content => template('wordpress/etc/nginx/conf.d/fastcgi_cache.conf.erb'),
-            notify  => Service['nginx'],
-            require => Package['nginx'],
-            owner   => 'www-data',
-            group   => 'root';
-
         '/etc/nginx/fastcgi_params':
             ensure  => present,
             content => template('wordpress/etc/nginx/fastcgi_params.erb'),
@@ -112,4 +104,5 @@ class wordpress::nginx {
             notify  => Service['nginx'],
             require => Package['nginx'];
 
+   }
 }

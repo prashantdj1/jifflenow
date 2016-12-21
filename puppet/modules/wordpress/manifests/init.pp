@@ -10,7 +10,7 @@ class wordpress (
 ) inherits wordpress::params {
 
     include wordpress::nginx
-    include php5_fpm
+    include php7_fpm
     include mysql::server
 
     create_resources('wordpress::db',$site_hash)

@@ -7,5 +7,5 @@
     $client_net           = undef,
     $wp_owner             = undef,
     $wp_group             = undef,
-    $client_hash          = hiera_hash('wordpress::client_hash', {}),
+    $site_hash          = hiera_hash('wordpress::site_hash', {}),
   ){}

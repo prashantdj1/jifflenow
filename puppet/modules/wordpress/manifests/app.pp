@@ -27,7 +27,6 @@ define wordpress::app (
     validate_string($install_dir,$install_url,$version,$db_name,$db_host,$db_user,$db_password)
     validate_string($wp_owner,$wp_group, $wp_lang, $wp_plugin_dir,$wp_additional_config,$wp_table_prefix,$wp_proxy_host,$wp_proxy_port,$wp_site_domain)
     validate_absolute_path($install_dir)
-    }
 
     ## Resource defaults
     File {
@@ -51,18 +50,17 @@ define wordpress::app (
         mode    => '0755',
     } ->
     exec { "Download_wordpress_${title}":
-    command => "wget ${install_url}/wordpress-${version}.tar.gz",
-    creates => "${wp_root}/wordpress-${version}.tar.gz",
-    require => File[$install_dir],
-    user    => $wp_owner,
-    group   => $wp_group,
-  }
-  -> exec { "Extract_wordpress_${title}":
-    command => "cd $wp_root && tar zxvf ${wp_root}/wordpress-${version}.tar.gz ",
-    creates => "${install_dir}/index.php",
-    user    => $wp_owner,
-    group   => $wp_group,
-  }
+      command => "wget ${install_url}/wordpress-${version}.tar.gz",
+      creates => "${wp_root}/wordpress-${version}.tar.gz",
+      require => File[$install_dir],
+      user    => $wp_owner,
+      group   => $wp_group,
+    } ->
+    exec { "Extract_wordpress_${title}":
+      command => "cd $wp_root && tar zxvf ${wp_root}/wordpress-${version}.tar.gz ",
+      creates => "${install_dir}/index.php",
+      user    => $wp_owner,
+      group   => $wp_group,
     } ->
     file { $wp_web_dir:
         ensure => directory,
